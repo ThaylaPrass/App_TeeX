@@ -52,6 +52,7 @@ export default function Carrinho({ route, navigation }) {
                         <Text style={styles.produtoNome}>{item.produtoNome}</Text>
                         <Text style={styles.produtoPreco}>Preço: R${item.valorTotal.toFixed(2)}</Text>
                         <Text style={styles.produtoQuantidade}>Quantidade: {item.quantidade}</Text>
+                        <Text style={styles.produtoTamanho}>Tamanho: {item.tamanho}</Text> {/* Added size information */}
                     </View>
                 ))
             )}
@@ -105,6 +106,10 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     produtoQuantidade: {
+        fontSize: 16,
+        marginBottom: 10,
+    },
+    produtoTamanho: {  // Added style for size information
         fontSize: 16,
         marginBottom: 10,
     },

@@ -1,6 +1,6 @@
 import axios from 'axios';
 import React, { useState } from 'react';
-import { Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Image, Picker, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const API_URL = 'http://localhost:3000/pedido-produtos';
 
@@ -8,6 +8,7 @@ export default function Pedidos({ route, navigation }) {
   const { produtoId, produtoImagem } = route.params;
   const [itensCarrinho, setItensCarrinho] = useState([]);
   const [quantidade, setQuantidade] = useState(1);
+  const [tamanho, setTamanho] = useState('P');
 
   const valorProduto = 99.99;
   const valorTotal = valorProduto * quantidade;
@@ -19,6 +20,7 @@ export default function Pedidos({ route, navigation }) {
         produtoNome: 'Camiseta TeeX Arte de Rua Unissex',
         quantidade,
         endereco: 'Rua Exemplo, 123',
+        tamanho,
       };
 
       await axios.post(API_URL, novoPedido);
@@ -62,6 +64,20 @@ export default function Pedidos({ route, navigation }) {
         </TouchableOpacity>
       </View>
 
+      <View style={styles.tamanhoContainer}>
+        <Text style={styles.selecioneTamanho}>Escolha seu tamanho:</Text>
+        <Picker
+          selectedValue={tamanho}
+          style={styles.picker}
+          onValueChange={(itemValue) => setTamanho(itemValue)}
+        >
+          <Picker.Item label="P" value="P" />
+          <Picker.Item label="M" value="M" />
+          <Picker.Item label="G" value="G" />
+          <Picker.Item label="GG" value="GG" />
+        </Picker>
+      </View>
+
       <Text style={styles.valorTotal}>Valor Total: R${valorTotal.toFixed(2)}</Text>
 
       <TouchableOpacity style={styles.botaoCarrinho} onPress={adicionarEIrParaCarrinho}>
@@ -74,7 +90,6 @@ export default function Pedidos({ route, navigation }) {
     </ScrollView>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: {
@@ -118,6 +133,23 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginHorizontal: 10,
     color: '#fff',
+  },
+  tamanhoContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  selecioneTamanho: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginRight: 10,
+  },
+  picker: {
+    height: 40, // Reduced height
+    width: 100,
+    color: '#fff',
+    backgroundColor: '#f4a261',
   },
   valorTotal: {
     fontSize: 18,
