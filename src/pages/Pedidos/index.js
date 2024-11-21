@@ -18,6 +18,7 @@ export default function Pedidos({ route, navigation }) {
       const novoPedido = {
         produtoId,
         produtoNome: 'Camiseta TeeX Arte de Rua Unissex',
+        produtoImagem, // Adiciona a imagem do produto ao pedido
         quantidade,
         endereco: 'Rua Exemplo, 123',
         tamanho,

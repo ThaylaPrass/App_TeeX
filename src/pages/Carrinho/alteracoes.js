@@ -1,17 +1,17 @@
+import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { Alert, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import QRCode from 'react-native-qrcode-svg';
 import { Container } from './styles';
 
 export default function Carrinho({ route, navigation }) {
   const { itensCarrinho = [] } = route.params || {};
   const [carrinho, setCarrinho] = useState(itensCarrinho);
+
   const [pagamento, setPagamento] = useState({
     numeroCartao: '',
     validade: '',
     cvv: '',
   });
-  const [pixCode, setPixCode] = useState('');
 
   useEffect(() => {
     console.log('Itens recebidos no carrinho:', itensCarrinho);
@@ -20,13 +20,20 @@ export default function Carrinho({ route, navigation }) {
     }
   }, [itensCarrinho]);
 
-  const handlePagamentoChange = (field, value) => {
-    setPagamento({ ...pagamento, [field]: value });
+  const finalizarCompra = () => {
+    axios.post('http://localhost:3000/pedido-produtos', { itens: carrinho })
+      .then(response => {
+        Alert.alert('Compra Finalizada', 'Seu pedido foi realizado com sucesso!');
+        limparCarrinho();
+      })
+      .catch(error => {
+        console.error('Erro ao finalizar compra:', error);
+        Alert.alert('Erro', 'Não foi possível finalizar a compra.');
+      });
   };
 
-  const gerarPixCode = () => {
-    // Gera o código Pix (isso é um exemplo, você precisará adaptar para seu backend)
-    setPixCode('00020126410014br.gov.bcb.pix0114+55119999999970212Pagamento12345678000');
+  const handlePagamentoChange = (field, value) => {
+    setPagamento({ ...pagamento, [field]: value });
   };
 
   const limparCarrinho = () => {
@@ -36,6 +43,7 @@ export default function Carrinho({ route, navigation }) {
 
   return (
     <Container>
+      <Text style={styles.header}>Carrinho:</Text>
       {carrinho.length === 0 ? (
         <Text>Seu carrinho está vazio.</Text>
       ) : (
@@ -51,6 +59,9 @@ export default function Carrinho({ route, navigation }) {
           </View>
         ))
       )}
+      <TouchableOpacity style={styles.botaoFinalizar} onPress={finalizarCompra}>
+        <Text style={styles.botaoTexto}>Finalizar Compra</Text>
+      </TouchableOpacity>
 
       <Text style={styles.header}>Pagamento:</Text>
       <TextInput
@@ -72,15 +83,6 @@ export default function Carrinho({ route, navigation }) {
         onChangeText={(value) => handlePagamentoChange('cvv', value)}
         secureTextEntry
       />
-      <TouchableOpacity style={styles.botaoFinalizar} onPress={gerarPixCode}>
-        <Text style={styles.botaoTexto}>Gerar QR Code para Pix</Text>
-      </TouchableOpacity>
-      {pixCode ? (
-        <QRCode
-          value={pixCode}
-          size={200}
-        />
-      ) : null}
     </Container>
   );
 }
@@ -90,7 +92,6 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
-    color: 'white'
   },
   produtoItem: {
     flexDirection: 'row',
@@ -102,7 +103,7 @@ const styles = StyleSheet.create({
   },
   produtoImagem: {
     width: 100,
-    height: 130,
+    height: 120,
     marginRight: 10,
   },
   produtoInfo: {
@@ -110,9 +111,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   produtoNome: {
-    fontSize: 18,
+    fontSize: 15,
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom: 10, 
   },
   produtoPreco: {
     fontSize: 16,
