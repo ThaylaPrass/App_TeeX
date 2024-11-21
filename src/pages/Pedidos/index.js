@@ -1,14 +1,6 @@
 import axios from 'axios';
 import React, { useState } from 'react';
-import {
-  Alert,
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
-} from 'react-native';
+import { Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const API_URL = 'http://localhost:3000/pedido-produtos';
 
@@ -33,7 +25,7 @@ export default function Pedidos({ route, navigation }) {
       Alert.alert('Pedido Criado', 'O pedido foi adicionado com sucesso!');
 
       const novoItem = { ...novoPedido, valorTotal };
-      setItensCarrinho([...itensCarrinho, novoItem]);
+      setItensCarrinho(prevItens => [...prevItens, novoItem]);
 
       console.log('Adicionado ao carrinho:', novoItem);
     } catch (error) {
@@ -56,10 +48,7 @@ export default function Pedidos({ route, navigation }) {
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.header}>Camiseta TeeX Arte de Rua Unissex</Text>
 
-      <Image
-        source={{ uri: produtoImagem }}
-        style={styles.imagemGrande}
-      />
+      <Image source={{ uri: produtoImagem }} style={styles.imagemGrande} />
 
       <Text style={styles.valorProduto}>R${valorProduto.toFixed(2)}</Text>
 
@@ -75,10 +64,7 @@ export default function Pedidos({ route, navigation }) {
 
       <Text style={styles.valorTotal}>Valor Total: R${valorTotal.toFixed(2)}</Text>
 
-      <TouchableOpacity
-        style={styles.botaoCarrinho}
-        onPress={adicionarEIrParaCarrinho}
-      >
+      <TouchableOpacity style={styles.botaoCarrinho} onPress={adicionarEIrParaCarrinho}>
         <Text style={styles.botaoTexto}>Adicionar ao Carrinho</Text>
       </TouchableOpacity>
 
@@ -88,6 +74,7 @@ export default function Pedidos({ route, navigation }) {
     </ScrollView>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
