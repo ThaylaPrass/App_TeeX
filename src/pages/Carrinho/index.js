@@ -1,13 +1,8 @@
 import axios from 'axios';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
-  Alert,
-  FlatList,
-  Text,
-  TouchableOpacity,
-  View,
+    Alert
 } from 'react-native';
-import styles from './styles'; 
 
 export default function Carrinho({ navigation }) {
     const [carrinho, setCarrinho] = useState([]);
@@ -40,6 +35,22 @@ export default function Carrinho({ navigation }) {
         });
     };
 
+    const diminuirQuantidade = (produtoId) => {
+        setCarrinho((prevCarrinho) => {
+            const itemExistente = prevCarrinho.find((item) => item.produtoId === produtoId);
+
+            if (itemExistente && itemExistente.quantidade > 1) {
+                return prevCarrinho.map((item) =>
+                    item.produtoId === produtoId
+                        ? { ...item, quantidade: item.quantidade - 1 }
+                        : item
+                );
+            } else {
+                return prevCarrinho.filter((item) => item.produtoId !== produtoId);
+            }
+        });
+    };
+
     const removerDoCarrinho = (produtoId) => {
         setCarrinho((prevCarrinho) =>
             prevCarrinho.filter((item) => item.produtoId !== produtoId)
@@ -59,7 +70,7 @@ export default function Carrinho({ navigation }) {
     };
 
     const finalizarCompra = () => {
-        axios.post('http://seu-servidor.com/pedidos', { itens: carrinho })
+        axios.post('http://localhost:3000/pedido-produtos', { itens: carrinho })
             .then(response => {
                 Alert.alert('Compra Finalizada', 'Seu pedido foi realizado com sucesso!');
                 limparCarrinho();
@@ -69,51 +80,4 @@ export default function Carrinho({ navigation }) {
             });
     };
 
-    return (
-        <View style={styles.container}>
-            <Text style={styles.header}>Carrinho de Compras</Text>
-
-            <FlatList
-                data={carrinho}
-                keyExtractor={(item) => item.produtoId.toString()}
-                renderItem={({ item }) => (
-                    <View style={styles.itemContainer}>
-                        <Text style={styles.itemDescricao}>{item.descricao}</Text>
-                        <Text>Preço: R${item.valorProduto.toFixed(2)}</Text>
-                        <Text>Quantidade: {item.quantidade}</Text>
-                        <View style={styles.botoesQuantidade}>
-                            <TouchableOpacity
-                                style={styles.botaoAlterar}
-                                onPress={() => adicionarAoCarrinho(item)}
-                            >
-                                <Text>+</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                style={styles.botaoAlterar}
-                                onPress={() => removerDoCarrinho(item.produtoId)}
-                            >
-                                <Text>-</Text>
-                            </TouchableOpacity>
-                        </View>
-                        <TouchableOpacity
-                            style={styles.botaoRemover}
-                            onPress={() => removerDoCarrinho(item.produtoId)}
-                        >
-                            <Text style={styles.botaoTexto}>Remover</Text>
-                        </TouchableOpacity>
-                    </View>
-                )}
-            />
-
-            <Text style={styles.total}>Total: R${calcularTotal()}</Text>
-
-            <TouchableOpacity style={styles.botaoFinalizar} onPress={finalizarCompra}>
-                <Text style={styles.botaoTexto}>Finalizar Compra</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity onPress={() => navigation.goBack()}>
-                <Text style={styles.voltarTexto}>Voltar</Text>
-            </TouchableOpacity>
-        </View>
-    );
 }

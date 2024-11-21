@@ -8,7 +8,6 @@ import Login from './pages/Login/index';
 import Pedidos from './pages/Pedidos/index';
 import Produtos from './pages/Produtos/index';
 
-
 const Stack = createStackNavigator();
 
 export default function App() {
@@ -20,6 +19,7 @@ export default function App() {
         <Stack.Screen name="CadUser" component={CadUser}/>
         <Stack.Screen name="Produtos" component={Produtos}/>
         <Stack.Screen name="Pedidos" component={Pedidos}/>
+        <Stack.Screen name="Carrinho" component={Carrinho}/>
       </Stack.Navigator>
     </NavigationContainer>
   );  

@@ -1,8 +1,7 @@
-import axios from 'axios'; // Importando axios para requisições HTTP
-import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import React, { useState } from 'react';
 import {
   Alert,
-  FlatList,
   Image,
   ScrollView,
   StyleSheet,
@@ -11,61 +10,47 @@ import {
   View
 } from 'react-native';
 
-const API_URL = 'http://localhost:3000/pedido-produtos'; // URL base da API
+const API_URL = 'http://localhost:3000/pedido-produtos';
 
 export default function Pedidos({ route, navigation }) {
-  const { produtoId, produtoImagem } = route.params; // Recebe os parâmetros da navegação
-  const [carrinho, setCarrinho] = useState([]);
-  const [pedidos, setPedidos] = useState([]); // Para armazenar os pedidos do backend
+  const { produtoId, produtoImagem } = route.params;
+  const [itensCarrinho, setItensCarrinho] = useState([]);
+  const [quantidade, setQuantidade] = useState(1);
 
-  const valorProduto = 99.99; // Valor do produto (pode ser dinâmico)
+  const valorProduto = 99.99;
+  const valorTotal = valorProduto * quantidade;
 
-  // Função para adicionar um pedido na API
-  const criarPedido = async () => {
+  const adicionarAoCarrinho = async () => {
     try {
       const novoPedido = {
         produtoId,
         produtoNome: 'Camiseta TeeX Arte de Rua Unissex',
-        quantidade: 1, // Ajuste conforme necessário
+        quantidade,
         endereco: 'Rua Exemplo, 123',
       };
 
-      const response = await axios.post(API_URL, novoPedido);
+      await axios.post(API_URL, novoPedido);
       Alert.alert('Pedido Criado', 'O pedido foi adicionado com sucesso!');
-      listarPedidos(); // Atualiza a lista de pedidos
+
+      const novoItem = { ...novoPedido, valorTotal };
+      setItensCarrinho([...itensCarrinho, novoItem]);
+
+      console.log('Adicionado ao carrinho:', novoItem);
     } catch (error) {
-      console.error(error);
+      console.error('Erro ao criar pedido:', error);
       Alert.alert('Erro', 'Não foi possível adicionar o pedido.');
     }
   };
 
-  // Função para listar pedidos da API
-  const listarPedidos = async () => {
-    try {
-      const response = await axios.get(API_URL);
-      setPedidos(response.data);
-    } catch (error) {
-      console.error(error);
-      Alert.alert('Erro', 'Não foi possível carregar os pedidos.');
-    }
+  const navegarParaCarrinho = () => {
+    console.log('Navegando para Carrinho com itensCarrinho:', itensCarrinho);
+    navigation.navigate('Carrinho', { itensCarrinho });
   };
 
-  // Função para excluir um pedido da API
-  const excluirPedido = async (id) => {
-    try {
-      await axios.delete(`${API_URL}/${id}`);
-      Alert.alert('Pedido Excluído', `O pedido ${id} foi removido com sucesso.`);
-      listarPedidos(); // Atualiza a lista de pedidos
-    } catch (error) {
-      console.error(error);
-      Alert.alert('Erro', 'Não foi possível excluir o pedido.');
-    }
+  const adicionarEIrParaCarrinho = async () => {
+    await adicionarAoCarrinho();
+    navegarParaCarrinho();
   };
-
-  // Função para carregar pedidos na inicialização
-  useEffect(() => {
-    listarPedidos();
-  }, []);
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -78,30 +63,24 @@ export default function Pedidos({ route, navigation }) {
 
       <Text style={styles.valorProduto}>R${valorProduto.toFixed(2)}</Text>
 
+      <View style={styles.quantidadeContainer}>
+        <TouchableOpacity onPress={() => setQuantidade(Math.max(1, quantidade - 1))}>
+          <Text style={styles.quantidadeBotao}>-</Text>
+        </TouchableOpacity>
+        <Text style={styles.quantidadeTexto}>{quantidade}</Text>
+        <TouchableOpacity onPress={() => setQuantidade(quantidade + 1)}>
+          <Text style={styles.quantidadeBotao}>+</Text>
+        </TouchableOpacity>
+      </View>
+
+      <Text style={styles.valorTotal}>Valor Total: R${valorTotal.toFixed(2)}</Text>
+
       <TouchableOpacity
         style={styles.botaoCarrinho}
-        onPress={criarPedido} // Chama a função para criar pedido
+        onPress={adicionarEIrParaCarrinho}
       >
         <Text style={styles.botaoTexto}>Adicionar ao Carrinho</Text>
       </TouchableOpacity>
-
-      <FlatList
-        data={pedidos}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <View style={styles.pedidoContainer}>
-            <Text style={styles.pedidoTexto}>
-              {item.produtoNome} - {item.status || 'Pendente'}
-            </Text>
-            <TouchableOpacity
-              style={styles.botaoExcluir}
-              onPress={() => excluirPedido(item.id)} // Exclui o pedido pelo ID
-            >
-              <Text style={styles.botaoTexto}>Excluir</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-      />
 
       <TouchableOpacity onPress={() => navigation.goBack()}>
         <Text style={styles.voltarTexto}>Voltar</Text>
@@ -136,17 +115,34 @@ const styles = StyleSheet.create({
     color: '#fff',
     marginBottom: 20,
   },
+  quantidadeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  quantidadeBotao: {
+    fontSize: 20,
+    padding: 10,
+    backgroundColor: '#f4a261',
+    color: '#fff',
+    borderRadius: 5,
+  },
+  quantidadeTexto: {
+    fontSize: 18,
+    marginHorizontal: 10,
+    color: '#fff',
+  },
+  valorTotal: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 20,
+  },
   botaoCarrinho: {
     backgroundColor: '#f4a261',
     padding: 10,
     borderRadius: 5,
     marginTop: 20,
-  },
-  botaoExcluir: {
-    backgroundColor: '#e76f51',
-    padding: 5,
-    borderRadius: 5,
-    marginTop: 10,
   },
   botaoTexto: {
     color: '#fff',
@@ -155,18 +151,5 @@ const styles = StyleSheet.create({
   voltarTexto: {
     color: '#fff',
     marginTop: 20,
-  },
-  pedidoContainer: {
-    marginTop: 20,
-    padding: 10,
-    backgroundColor: '#fff',
-    borderRadius: 5,
-    width: '90%',
-    alignItems: 'center',
-  },
-  pedidoTexto: {
-    fontSize: 16,
-    marginBottom: 10,
-    color: '#000',
   },
 });
