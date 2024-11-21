@@ -27,21 +27,17 @@ export default function Pedidos({ route, navigation }) {
       Alert.alert('Pedido Criado', 'O pedido foi adicionado com sucesso!');
 
       const novoItem = { ...novoPedido, valorTotal };
-      setItensCarrinho(prevItens => [...prevItens, novoItem]);
-
-      console.log('Adicionado ao carrinho:', novoItem);
+      setItensCarrinho(prevItens => {
+        const updatedItens = [...prevItens, novoItem];
+        console.log('Adicionado ao carrinho:', updatedItens);
+        // Navegar para Carrinho após garantir que itensCarrinho foi atualizado
+        navigation.navigate('Carrinho', { itensCarrinho: updatedItens });
+        return updatedItens;
+      });
     } catch (error) {
       console.error('Erro ao criar pedido:', error);
       Alert.alert('Erro', 'Não foi possível adicionar o pedido.');
     }
-  };
-
-  const adicionarEIrParaCarrinho = async () => {
-    await adicionarAoCarrinho();
-    setTimeout(() => {
-      console.log('Navegando para Carrinho com itensCarrinho:', itensCarrinho);
-      navigation.navigate('Carrinho', { itensCarrinho: [...itensCarrinho] });
-    }, 0);
   };
 
   return (
@@ -78,7 +74,7 @@ export default function Pedidos({ route, navigation }) {
 
       <Text style={styles.valorTotal}>Valor Total: R${valorTotal.toFixed(2)}</Text>
 
-      <TouchableOpacity style={styles.botaoCarrinho} onPress={adicionarEIrParaCarrinho}>
+      <TouchableOpacity style={styles.botaoCarrinho} onPress={adicionarAoCarrinho}>
         <Text style={styles.botaoTexto}>Adicionar ao Carrinho</Text>
       </TouchableOpacity>
 
@@ -144,7 +140,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   picker: {
-    height: 40, // Reduced height
+    height: 40,
     width: 100,
     color: '#fff',
     backgroundColor: '#f4a261',
