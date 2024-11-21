@@ -36,12 +36,14 @@ export default function Pedidos({ route, navigation }) {
     }
   };
 
+  const navegarParaCarrinho = () => {
+    console.log('Navegando para Carrinho com itensCarrinho:', itensCarrinho);
+    navigation.navigate('Carrinho', { itensCarrinho });
+  };
+
   const adicionarEIrParaCarrinho = async () => {
     await adicionarAoCarrinho();
-    setTimeout(() => {
-      console.log('Navegando para Carrinho com itensCarrinho:', itensCarrinho);
-      navigation.navigate('Carrinho', { itensCarrinho: [...itensCarrinho] });
-    }, 0);
+    navegarParaCarrinho();
   };
 
   return (
